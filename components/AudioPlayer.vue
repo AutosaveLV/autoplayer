@@ -68,7 +68,7 @@ export default {
 </script>
 
 <template>
-  <div>
+  <div class="h-full flex flex-col justify-around">
     <Knob
       v-model="tempo"
       :size="knobSize"
@@ -79,9 +79,23 @@ export default {
       rangeColor="#E7B6DC"
       :strokeWidth="strokeWidth"
     />
-    <audio ref="audio" :src="audioSource"></audio>
-    <button @click="togglePlayback" data-testid="play_button">
-      {{ isPlaying ? "Pause" : "Play" }}
-    </button>
+    <div class="flex justify-center">
+      <audio ref="audio" :src="audioSource"></audio>
+      <Button
+        @click="togglePlayback"
+        data-testid="play_button"
+        rounded
+        raised
+        severity="secondary"
+        :aria-label="isPlaying ? 'Pause' : 'Play'"
+      >
+        <template v-if="isPlaying">
+          <MaterialSymbolsPause class="text-6xl p2" />
+        </template>
+        <template v-else>
+          <MaterialSymbolsPlayArrow class="text-6xl p2" />
+        </template>
+      </Button>
+    </div>
   </div>
 </template>

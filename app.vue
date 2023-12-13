@@ -6,6 +6,8 @@ useHead({
 
 <template>
   <div class="w-screen h-screen flex justify-center items-center bg-gray-950">
-    <AudioPlayer />
+    <ClientOnly fallback-tag="span" fallback="Loading...">
+      <AudioPlayer />
+    </ClientOnly>
   </div>
 </template>
