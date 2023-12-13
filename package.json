@@ -15,7 +15,11 @@
     "@playwright/test": "^1.40.1",
     "@types/node": "^20.10.4",
     "nuxt": "^3.8.2",
+    "nuxt-primevue": "^0.2.2",
     "vue": "^3.3.10",
     "vue-router": "^4.2.5"
+  },
+  "dependencies": {
+    "primevue": "^3.43.0"
   }
 }
