@@ -1,5 +1,6 @@
 <script lang="ts">
 import Knob from "primevue/knob";
+import { MAX_WINDOW_WIDTH } from "~/utils/constants";
 
 function getBPMColor(bpm: number) {
   const minColor = [255, 144, 200];
@@ -24,6 +25,7 @@ export default {
       audioSource: audio.publicPath,
       tempo: INITIAL_BPM,
       strokeWidth: 20,
+      windowWidth: window.innerWidth,
     };
   },
   methods: {
@@ -38,10 +40,16 @@ export default {
 
       this.isPlaying = !this.isPlaying;
     },
+    handleResize() {
+      this.windowWidth = window.innerWidth;
+    },
   },
   computed: {
     knobColor() {
       return getBPMColor(this.tempo);
+    },
+    knobSize() {
+      return Math.floor(Math.min(this.windowWidth, MAX_WINDOW_WIDTH) / 1.618);
     },
   },
   watch: {
@@ -50,6 +58,12 @@ export default {
       audioElement.playbackRate = getPlaybackRate(audio.bpm, newTempo);
     },
   },
+  mounted() {
+    window.addEventListener("resize", this.handleResize);
+  },
+  beforeDestroy() {
+    window.removeEventListener("resize", this.handleResize);
+  },
 };
 </script>
 
@@ -57,7 +71,7 @@ export default {
   <div>
     <Knob
       v-model="tempo"
-      :size="150"
+      :size="knobSize"
       :min="MIN_BPM"
       :max="MAX_BPM"
       :textColor="knobColor"
