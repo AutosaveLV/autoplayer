@@ -1,16 +1,4 @@
 <script lang="ts">
-function getBPMColor(bpm: number) {
-  const minColor = [255, 144, 200];
-  const maxColor = [128, 0, 128];
-
-  const interpolatedColor = minColor.map((channel, i) => {
-    const range = maxColor[i] - channel;
-    return Math.round(channel + range * (bpm / MAX_BPM));
-  });
-
-  return `rgb(${interpolatedColor.join(",")})`;
-}
-
 const songs = [
   {
     name: "Track 1",
@@ -41,8 +29,6 @@ export default {
       currentSong: songs[0],
       tempo: INITIAL_BPM,
       volume: INITIAL_VOLUME,
-      strokeWidth: 20,
-      windowWidth: window.innerWidth,
     };
   },
   methods: {
@@ -59,9 +45,6 @@ export default {
       }
 
       this.isPlaying = !this.isPlaying;
-    },
-    handleResize() {
-      this.windowWidth = window.innerWidth;
     },
     playNextSong() {
       const sortedSongs = [...songs].sort(
@@ -89,14 +72,6 @@ export default {
       }
     },
   },
-  computed: {
-    tempoColor() {
-      return getBPMColor(this.tempo);
-    },
-    knobSize() {
-      return Math.floor(Math.min(this.windowWidth, MAX_WINDOW_WIDTH) / 1.618);
-    },
-  },
   watch: {
     tempo(newTempo: number) {
       const audioElement = this.$refs.audio as HTMLAudioElement;
@@ -113,28 +88,17 @@ export default {
   mounted() {
     const audioElement = this.$refs.audio as HTMLAudioElement;
     audioElement.addEventListener("ended", this.playNextSong);
-    window.addEventListener("resize", this.handleResize);
   },
   beforeDestroy() {
     const audioElement = this.$refs.audio as HTMLAudioElement;
     audioElement.removeEventListener("ended", this.playNextSong);
-    window.removeEventListener("resize", this.handleResize);
   },
 };
 </script>
 
 <template>
   <div class="h-full flex flex-col justify-around">
-    <Knob
-      v-model="tempo"
-      :size="knobSize"
-      :min="MIN_BPM"
-      :max="MAX_BPM"
-      :textColor="tempoColor"
-      :valueColor="tempoColor"
-      rangeColor="#E7B6DC"
-      :strokeWidth="strokeWidth"
-    />
+    <TempoKnob v-model="tempo" />
     <div class="flex justify-center">
       <VolumeKnob v-model="volume" />
     </div>
