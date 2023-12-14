@@ -1,7 +1,4 @@
 <script lang="ts">
-import Knob from "primevue/knob";
-import { MAX_WINDOW_WIDTH } from "~/utils/constants";
-
 function getBPMColor(bpm: number) {
   const minColor = [255, 144, 200];
   const maxColor = [128, 0, 128];
@@ -12,17 +9,6 @@ function getBPMColor(bpm: number) {
   });
 
   return `rgb(${interpolatedColor.join(",")})`;
-}
-
-function getVolumeColor(volume: number) {
-  const minColor = 50;
-  const maxColor = 100;
-
-  const interpolatedColor = Math.round(
-    minColor - (volume / 100) * (minColor - maxColor)
-  );
-
-  return `rgb(${interpolatedColor},${interpolatedColor},${interpolatedColor})`;
 }
 
 const songs = [
@@ -107,9 +93,6 @@ export default {
     tempoColor() {
       return getBPMColor(this.tempo);
     },
-    volumeColor() {
-      return getVolumeColor(this.volume);
-    },
     knobSize() {
       return Math.floor(Math.min(this.windowWidth, MAX_WINDOW_WIDTH) / 1.618);
     },
@@ -153,16 +136,7 @@ export default {
       :strokeWidth="strokeWidth"
     />
     <div class="flex justify-center">
-      <Knob
-        v-model="volume"
-        :size="knobSize * 0.8"
-        :min="0"
-        :max="100"
-        :textColor="volumeColor"
-        :valueColor="volumeColor"
-        rangeColor="#262626"
-        :strokeWidth="strokeWidth * 0.8"
-      />
+      <VolumeKnob v-model="volume" />
     </div>
     <div class="flex flex-col justify-center items-center">
       <p>{{ currentSong.name }}</p>
