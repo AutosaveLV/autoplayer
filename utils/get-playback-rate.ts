@@ -1,3 +1,3 @@
-export function getPlaybackRate(songBPM: number, desiredBPM: number) {
-  return desiredBPM / songBPM;
+export function getPlaybackRate(trackBPM: number, desiredBPM: number) {
+  return desiredBPM / trackBPM;
 }

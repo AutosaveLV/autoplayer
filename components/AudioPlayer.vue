@@ -1,32 +1,9 @@
 <script lang="ts">
-const songs = [
-  {
-    name: "Track 1",
-    publicPath: "audio/Track_1.mp3",
-    bpm: 117,
-  },
-  {
-    name: "Track 2",
-    publicPath: "audio/Track_2.mp3",
-    bpm: 120,
-  },
-  {
-    name: "Track 3",
-    publicPath: "audio/Track_3.mp3",
-    bpm: 120,
-  },
-  {
-    name: "Track 4",
-    publicPath: "audio/Track_4.mp3",
-    bpm: 102,
-  },
-];
-
 export default {
   data() {
     return {
       isPlaying: false,
-      currentSong: songs[0],
+      currentTrack: tracks[0],
       tempo: INITIAL_BPM,
       volume: INITIAL_VOLUME,
     };
@@ -39,30 +16,30 @@ export default {
       } else {
         audioElement.play();
         audioElement.playbackRate = getPlaybackRate(
-          this.currentSong.bpm,
+          this.currentTrack.bpm,
           this.tempo
         );
       }
 
       this.isPlaying = !this.isPlaying;
     },
-    playNextSong() {
-      const sortedSongs = [...songs].sort(
+    playNextTrack() {
+      const sortedTracks = [...tracks].sort(
         (a, b) => Math.abs(a.bpm - this.tempo) - Math.abs(b.bpm - this.tempo)
       );
-      const nextSong = sortedSongs.find(
-        (song) => song.publicPath !== this.currentSong.publicPath
+      const nextTrack = sortedTracks.find(
+        (track) => track.publicPath !== this.currentTrack.publicPath
       );
 
-      if (nextSong) {
-        this.currentSong = nextSong;
+      if (nextTrack) {
+        this.currentTrack = nextTrack;
         const audioElement = this.$refs.audio as HTMLAudioElement;
         audioElement.addEventListener(
           "canplay",
           () => {
             audioElement.currentTime = 0;
             audioElement.playbackRate = getPlaybackRate(
-              nextSong.bpm,
+              nextTrack.bpm,
               this.tempo
             );
             audioElement.play();
@@ -76,7 +53,7 @@ export default {
     tempo(newTempo: number) {
       const audioElement = this.$refs.audio as HTMLAudioElement;
       audioElement.playbackRate = getPlaybackRate(
-        this.currentSong.bpm,
+        this.currentTrack.bpm,
         newTempo
       );
     },
@@ -87,11 +64,11 @@ export default {
   },
   mounted() {
     const audioElement = this.$refs.audio as HTMLAudioElement;
-    audioElement.addEventListener("ended", this.playNextSong);
+    audioElement.addEventListener("ended", this.playNextTrack);
   },
   beforeDestroy() {
     const audioElement = this.$refs.audio as HTMLAudioElement;
-    audioElement.removeEventListener("ended", this.playNextSong);
+    audioElement.removeEventListener("ended", this.playNextTrack);
   },
 };
 </script>
@@ -103,8 +80,8 @@ export default {
       <VolumeKnob v-model="volume" />
     </div>
     <div class="flex flex-col justify-center items-center">
-      <p>{{ currentSong.name }}</p>
-      <audio ref="audio" :src="currentSong.publicPath"></audio>
+      <p>{{ currentTrack.name }}</p>
+      <audio ref="audio" :src="currentTrack.publicPath"></audio>
       <Button
         @click="togglePlayback"
         data-testid="play_button"
