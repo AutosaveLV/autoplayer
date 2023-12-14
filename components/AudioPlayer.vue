@@ -58,6 +58,31 @@ export default {
     handleResize() {
       this.windowWidth = window.innerWidth;
     },
+    playNextSong() {
+      const sortedSongs = [...songs].sort(
+        (a, b) => Math.abs(a.bpm - this.tempo) - Math.abs(b.bpm - this.tempo)
+      );
+      const nextSong = sortedSongs.find(
+        (song) => song.publicPath !== this.audioSource
+      );
+
+      if (nextSong) {
+        this.audioSource = nextSong.publicPath;
+        const audioElement = this.$refs.audio as HTMLAudioElement;
+        audioElement.addEventListener(
+          "canplay",
+          () => {
+            audioElement.currentTime = 0;
+            audioElement.playbackRate = getPlaybackRate(
+              nextSong.bpm,
+              this.tempo
+            );
+            audioElement.play();
+          },
+          { once: true }
+        );
+      }
+    },
   },
   computed: {
     knobColor() {
@@ -74,9 +99,13 @@ export default {
     },
   },
   mounted() {
+    const audioElement = this.$refs.audio as HTMLAudioElement;
+    audioElement.addEventListener("ended", this.playNextSong);
     window.addEventListener("resize", this.handleResize);
   },
   beforeDestroy() {
+    const audioElement = this.$refs.audio as HTMLAudioElement;
+    audioElement.removeEventListener("ended", this.playNextSong);
     window.removeEventListener("resize", this.handleResize);
   },
 };
