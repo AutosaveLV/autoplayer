@@ -14,15 +14,30 @@ function getBPMColor(bpm: number) {
   return `rgb(${interpolatedColor.join(",")})`;
 }
 
-const audio = {
-  publicPath: "audio/sample_1.mp3",
-  bpm: 119,
-};
+const songs = [
+  {
+    publicPath: "audio/Track_1.mp3",
+    bpm: 117,
+  },
+  {
+    publicPath: "audio/Track_2.mp3",
+    bpm: 120,
+  },
+  {
+    publicPath: "audio/Track_3.mp3",
+    bpm: 120,
+  },
+  {
+    publicPath: "audio/Track_4.mp3",
+    bpm: 102,
+  },
+];
+
 export default {
   data() {
     return {
       isPlaying: false,
-      audioSource: audio.publicPath,
+      audioSource: songs[0].publicPath,
       tempo: INITIAL_BPM,
       strokeWidth: 20,
       windowWidth: window.innerWidth,
@@ -35,7 +50,7 @@ export default {
         audioElement.pause();
       } else {
         audioElement.play();
-        audioElement.playbackRate = getPlaybackRate(audio.bpm, this.tempo);
+        audioElement.playbackRate = getPlaybackRate(songs[0].bpm, this.tempo);
       }
 
       this.isPlaying = !this.isPlaying;
@@ -55,7 +70,7 @@ export default {
   watch: {
     tempo(newTempo: number) {
       const audioElement = this.$refs.audio as HTMLAudioElement;
-      audioElement.playbackRate = getPlaybackRate(audio.bpm, newTempo);
+      audioElement.playbackRate = getPlaybackRate(songs[0].bpm, newTempo);
     },
   },
   mounted() {
