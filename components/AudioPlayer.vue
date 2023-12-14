@@ -14,6 +14,17 @@ function getBPMColor(bpm: number) {
   return `rgb(${interpolatedColor.join(",")})`;
 }
 
+function getVolumeColor(volume: number) {
+  const minColor = 50;
+  const maxColor = 100;
+
+  const interpolatedColor = Math.round(
+    minColor - (volume / 100) * (minColor - maxColor)
+  );
+
+  return `rgb(${interpolatedColor},${interpolatedColor},${interpolatedColor})`;
+}
+
 const songs = [
   {
     publicPath: "audio/Track_1.mp3",
@@ -37,8 +48,9 @@ export default {
   data() {
     return {
       isPlaying: false,
-      audioSource: songs[0].publicPath,
+      currentSong: songs[0],
       tempo: INITIAL_BPM,
+      volume: INITIAL_VOLUME,
       strokeWidth: 20,
       windowWidth: window.innerWidth,
     };
@@ -50,7 +62,10 @@ export default {
         audioElement.pause();
       } else {
         audioElement.play();
-        audioElement.playbackRate = getPlaybackRate(songs[0].bpm, this.tempo);
+        audioElement.playbackRate = getPlaybackRate(
+          this.currentSong.bpm,
+          this.tempo
+        );
       }
 
       this.isPlaying = !this.isPlaying;
@@ -63,11 +78,11 @@ export default {
         (a, b) => Math.abs(a.bpm - this.tempo) - Math.abs(b.bpm - this.tempo)
       );
       const nextSong = sortedSongs.find(
-        (song) => song.publicPath !== this.audioSource
+        (song) => song.publicPath !== this.currentSong.publicPath
       );
 
       if (nextSong) {
-        this.audioSource = nextSong.publicPath;
+        this.currentSong = nextSong;
         const audioElement = this.$refs.audio as HTMLAudioElement;
         audioElement.addEventListener(
           "canplay",
@@ -85,8 +100,11 @@ export default {
     },
   },
   computed: {
-    knobColor() {
+    tempoColor() {
       return getBPMColor(this.tempo);
+    },
+    volumeColor() {
+      return getVolumeColor(this.volume);
     },
     knobSize() {
       return Math.floor(Math.min(this.windowWidth, MAX_WINDOW_WIDTH) / 1.618);
@@ -95,7 +113,14 @@ export default {
   watch: {
     tempo(newTempo: number) {
       const audioElement = this.$refs.audio as HTMLAudioElement;
-      audioElement.playbackRate = getPlaybackRate(songs[0].bpm, newTempo);
+      audioElement.playbackRate = getPlaybackRate(
+        this.currentSong.bpm,
+        newTempo
+      );
+    },
+    volume(newVolume: number) {
+      const audioElement = this.$refs.audio as HTMLAudioElement;
+      audioElement.volume = newVolume / 100;
     },
   },
   mounted() {
@@ -118,13 +143,25 @@ export default {
       :size="knobSize"
       :min="MIN_BPM"
       :max="MAX_BPM"
-      :textColor="knobColor"
-      :valueColor="knobColor"
+      :textColor="tempoColor"
+      :valueColor="tempoColor"
       rangeColor="#E7B6DC"
       :strokeWidth="strokeWidth"
     />
     <div class="flex justify-center">
-      <audio ref="audio" :src="audioSource"></audio>
+      <Knob
+        v-model="volume"
+        :size="knobSize * 0.8"
+        :min="0"
+        :max="100"
+        :textColor="volumeColor"
+        :valueColor="volumeColor"
+        rangeColor="#262626"
+        :strokeWidth="strokeWidth * 0.8"
+      />
+    </div>
+    <div class="flex justify-center">
+      <audio ref="audio" :src="currentSong.publicPath"></audio>
       <Button
         @click="togglePlayback"
         data-testid="play_button"
